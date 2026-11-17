@@ -15,7 +15,7 @@ MonoBehaviour:
   moveSpeed: 6
   maxHearts: 5
   startLives: 3
-  hitInvincibility: 1
+  hitInvincibility: 1.2
   attackCooldown: 0.4
   attackRange: 1.6
   attackHalfAngle: 60
@@ -25,26 +25,26 @@ MonoBehaviour:
   dodgeCooldown: 0.8
   dyingDuration: 1.5
   potionHeal: 2
-  saveRange: 1.8
+  saveRange: 2.2
   doorHintRange: 3.5
   slime:
     maxHp: 2
     moveSpeed: 2.5
-    detectRange: 5
+    detectRange: 4
     leashRange: 8
     attackRange: 1.1
     attackDamage: 1
     attackWindup: 0
-    attackCooldown: 1
+    attackCooldown: 1.5
   goblin:
     maxHp: 3
     moveSpeed: 3
-    detectRange: 6
+    detectRange: 5
     leashRange: 10
     attackRange: 1.5
     attackDamage: 1
-    attackWindup: 0.4
-    attackCooldown: 1.2
+    attackWindup: 0.6
+    attackCooldown: 1.6
   bossTimings:
     maxHp: 20
     idle: 1

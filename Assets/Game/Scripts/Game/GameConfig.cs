@@ -11,7 +11,7 @@ namespace CryptEscape.Game
         public float moveSpeed = 6f;
         public int maxHearts = 5;
         public int startLives = 3;
-        public float hitInvincibility = 1.0f;
+        public float hitInvincibility = 1.2f;
         public float attackCooldown = 0.4f;
         public float attackRange = 1.6f;
         public float attackHalfAngle = 60f;
@@ -23,21 +23,21 @@ namespace CryptEscape.Game
 
         [Header("Items")]
         public int potionHeal = 2;
-        public float saveRange = 1.8f;
+        public float saveRange = 2.2f;
         public float doorHintRange = 3.5f;
 
         [Header("Slime")]
         public EnemyStats slime = new EnemyStats
         {
-            maxHp = 2, moveSpeed = 2.5f, detectRange = 5f, leashRange = 8f,
-            attackRange = 1.1f, attackDamage = 1, attackWindup = 0f, attackCooldown = 1.0f,
+            maxHp = 2, moveSpeed = 2.5f, detectRange = 4f, leashRange = 8f,
+            attackRange = 1.1f, attackDamage = 1, attackWindup = 0f, attackCooldown = 1.5f,
         };
 
         [Header("Goblin")]
         public EnemyStats goblin = new EnemyStats
         {
-            maxHp = 3, moveSpeed = 3f, detectRange = 6f, leashRange = 10f,
-            attackRange = 1.5f, attackDamage = 1, attackWindup = 0.4f, attackCooldown = 1.2f,
+            maxHp = 3, moveSpeed = 3f, detectRange = 5f, leashRange = 10f,
+            attackRange = 1.5f, attackDamage = 1, attackWindup = 0.6f, attackCooldown = 1.6f,
         };
 
         [Header("Boss")]
