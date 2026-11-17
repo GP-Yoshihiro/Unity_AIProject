@@ -2,6 +2,16 @@
 
 検証で `get_component_values` / `get_hierarchy` を使って読む名前の約束。実装で名前を変える場合は、この文書も更新する。
 
+## シーン（Additive）
+
+| シーン | 読み込まれる時 | ルート |
+|--------|----------------|--------|
+| Boot | 常に | `/Game` |
+| Title | タイトル表示中 | `/Title` |
+| Dungeon | プレイ中（ポーズ・ゲームオーバー・クリア中も残る） | `/Dungeon`, `/Player`, `/Main Camera`, `/Light` |
+| HUD | Dungeon と一緒 | `/HUD` |
+| PauseDialog / GameOverDialog / ClearDialog | 該当ダイアログを開いている間 | `/PauseDialog` / `/GameOverDialog` / `/ClearDialog` |
+
 ## GameObject
 
 | パス | 内容 |
@@ -16,13 +26,17 @@
 | `/Dungeon/BossDoor` | ボスの間の扉（開くと非アクティブ） |
 | `/Dungeon/ExitGate` | 出口の柵（開くと非アクティブ） |
 | `/Dungeon/ExitZone` | 出口の判定 |
-| `/UI/Title`, `/UI/HUD`, `/UI/Pause`, `/UI/GameOver`, `/UI/Clear` | 各画面。表示中のものだけアクティブ |
+| `/HUD` | HUD（HUD シーン） |
 
 ## `GameDirector` の公開フィールド（読み取り専用として扱う）
 
 | フィールド | 型 | 例 |
 |------------|----|----|
 | `flow` | string | `"Playing"`（data-model の GameFlow） |
+| `loadedScenes` | string | `"Boot\|Dungeon\|HUD\|PauseDialog"`（読み込み中のシーン） |
+| `topDialog` | string | `"PauseDialog"`（最前面のダイアログ。なければ空） |
+| `dialogSelection` | int | ダイアログで選択中の項目番号 |
+| `sceneBusy` | bool | シーンの読み込み・破棄の途中なら true |
 | `coinCount` | int | 3 |
 | `hearts` | int | 4 |
 | `lives` | int | 2 |

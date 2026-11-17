@@ -2,11 +2,22 @@
 
 Phase 0。技術上の未決事項と、その決定理由。
 
-## R1. シーン構成
+## R1. シーンとダイアログの管理（Additive）
 
-- **Decision**: ゲーム本体は1シーン（`Assets/Game/Scenes/CryptEscape.unity`）。タイトル・ポーズ・ゲームオーバー・クリアは同じシーン内の UI 画面として、ゲーム状態（`GameFlow`）で切り替える。
-- **Rationale**: 状態が1か所にまとまり、unity-cli で Play 中の状態を常に同じ名前で取得できる。即リスタートを1秒以内（SC-006）にするには、シーンを読み直すより状態を初期化するほうが速く確実。
-- **Alternatives considered**: タイトルとゲームを別シーンにする → シーン読み込みを挟むため、検証手順とリスタートが複雑になる。
+- **Decision**（ユーザー指定）: シーンとダイアログは Additive 読み込みで管理する。
+  - `Boot`（常駐、Build Settings の 0 番）: `GameDirector`（進行）、`GameInput`、`AudioManager`、`SceneDirector`（Additive の読み込み・破棄）
+  - `Title`: タイトル画面（背景カメラ付き）
+  - `Dungeon`: 迷宮・プレイヤー・敵・ボス・メインカメラ・ライト。読み込み後にアクティブシーンにする
+  - `HUD`: プレイ中の HUD。Dungeon と一緒に読み込む
+  - ダイアログ: `PauseDialog`、`GameOverDialog`、`ClearDialog`。開くときに Additive で読み込み、閉じるときに破棄する
+- 画面遷移:
+  - 開始: Title を破棄 → Dungeon + HUD を読み込み → 読み込み完了後に Playing（タイマー開始）
+  - 即リスタート／ゲームオーバー後の続行: ダイアログを破棄 → Dungeon を破棄して読み直す（=全初期化）。HUD はそのまま
+  - タイトルへ: ダイアログ・HUD・Dungeon を破棄 → Title を読み込み
+  - 復活（残機あり）: シーンは読み直さず、Dungeon 内でプレイヤー・生きている敵・ボスを初期化（倒した敵・金貨は保持するため）
+- シーンをまたぐ参照は Inspector で持てないため、各シーンのルートに置いたコンポーネント（`DungeonContext`、`HudView`、各ダイアログ）が読み込み時に `GameDirector` へ自分を登録する。
+- **Rationale**: 画面ごとに独立したシーンになり、ダイアログの追加や差し替えがしやすい。リスタートで Dungeon を読み直すため、初期化漏れが起きない。
+- **注意**: 即リスタートは1秒以内（SC-006）。Dungeon の読み直し時間を検証で測る。
 
 ## R2. 迷宮の作り方
 

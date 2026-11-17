@@ -8,7 +8,7 @@
 
 見下ろし3Dの迷宮探索アクション。金貨5枚でボスの間が開き、ボスを倒すと出口が開いて脱出でクリア。剣の近接攻撃、ザコ敵2種、突進と範囲攻撃を使うボス、ハート・残機・セーブ台座、RTA 向けのタイマー・区間タイム・ベストタイム・即リスタートを持つ。
 
-技術方針: 1シーンで画面状態を切り替え（research R1）、迷宮は文字のマップ定義から Editor 拡張で生成（R2）、敵は NavMesh を使わず縄張り内で直接追う（R3）、入力は Input System のアクション（R4）。進行ルールは純粋な C# クラスにして EditMode テストで確かめ、Play 中の動作は unity-cli で実際に入力を送って確かめる。見た目は仮素材で先に完成させ、Asset Store 素材は後から Visual 子オブジェクトを差し替える（R8）。
+技術方針: シーンとダイアログは Additive 読み込みで管理（常駐の Boot に Title / Dungeon / HUD / 各ダイアログを重ねる。research R1）、迷宮は文字のマップ定義から Editor 拡張で生成（R2）、敵は NavMesh を使わず縄張り内で直接追う（R3）、入力は Input System のアクション（R4）。進行ルールは純粋な C# クラスにして EditMode テストで確かめ、Play 中の動作は unity-cli で実際に入力を送って確かめる。見た目は仮素材で先に完成させ、Asset Store 素材は後から Visual 子オブジェクトを差し替える（R8）。
 
 ## Technical Context
 
@@ -83,12 +83,18 @@ specs/001-fantasy-coin-escape/
 
 ```text
 Assets/Game/
-├── Scenes/
-│   └── CryptEscape.unity
+├── Scenes/              # すべて Additive で管理（research R1）
+│   ├── Boot.unity           # 常駐: GameDirector, GameInput, AudioManager, SceneDirector
+│   ├── Title.unity
+│   ├── Dungeon.unity        # 迷宮・プレイヤー・敵・ボス・カメラ
+│   ├── HUD.unity
+│   ├── PauseDialog.unity
+│   ├── GameOverDialog.unity
+│   └── ClearDialog.unity
 ├── Scripts/
 │   ├── CryptEscape.asmdef
 │   ├── Core/            # Unity 非依存のルール: RunState, LivesAndRespawn, RtaTimer, BestRecord, BossBrain(遷移), GameFlowMachine
-│   ├── Game/            # GameDirector, GameConfig, ButtonEdge, AudioManager
+│   ├── Game/            # GameDirector, SceneDirector, DungeonContext, GameInput, GameConfig, ButtonEdge, AudioManager
 │   ├── Player/          # PlayerMotor, PlayerCombat, PlayerHealth, CameraFollow
 │   ├── Enemies/         # EnemyBase, Slime, Goblin, BossController, AttackTelegraph
 │   ├── World/           # Coin, Potion, SavePoint, BossDoor, ExitZone
@@ -110,7 +116,7 @@ Assets/Tests/CryptEscape/EditMode/
 └── *Tests.cs
 ```
 
-**Structure Decision**: 単一の Unity プロジェクト。ゲームのコードは `Assets/Game/` にまとめ、既存の `Assets/Scenes/SampleScene.unity` とは分ける。Unity 非依存のルール（Core）と、MonoBehaviour（Game/Player/Enemies/World/UI）を分け、Core だけを EditMode テストの対象にする。
+**Structure Decision**: 単一の Unity プロジェクト。ゲームのコードは `Assets/Game/` にまとめ、既存の `Assets/Scenes/SampleScene.unity` とは分ける。シーンは常駐の Boot に、画面ごとのシーンとダイアログのシーンを Additive で重ねる。シーンをまたぐ参照は、各シーンのルートのコンポーネントが読み込み時に GameDirector へ登録する。Unity 非依存のルール（Core）と、MonoBehaviour（Game/Player/Enemies/World/UI）を分け、Core だけを EditMode テストの対象にする。
 
 ## Complexity Tracking
 

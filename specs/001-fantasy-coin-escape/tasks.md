@@ -41,7 +41,7 @@ description: "Task list for 古城脱出 ― 五枚の金貨"
 - [ ] T003 [P] Create editor assembly `Assets/Game/Editor/CryptEscape.Editor.asmdef`（Editor only, references CryptEscape）
 - [ ] T004 [P] Create test assembly `Assets/Tests/CryptEscape/EditMode/CryptEscape.Tests.EditMode.asmdef`（Editor only, references CryptEscape + TestRunner, nunit.framework.dll, UNITY_INCLUDE_TESTS）
 - [ ] T005 Set `PlayerSettings.runInBackground = true` via unity-cli eval and confirm in `ProjectSettings/ProjectSettings.asset`（research R11）
-- [ ] T006 Create empty scene `Assets/Game/Scenes/CryptEscape.unity` with root objects `/Game`, `/Dungeon`, `/UI` and register it first in Build Settings
+- [ ] T006 Create scenes `Boot`, `Title`, `Dungeon`, `HUD`, `PauseDialog`, `GameOverDialog`, `ClearDialog` in `Assets/Game/Scenes/` and register them in Build Settings with Boot first（Additive 管理、research R1）
 
 ---
 
@@ -56,7 +56,7 @@ description: "Task list for 古城脱出 ― 五枚の金貨"
 - [ ] T009 [P] Implement `GameConfig` ScriptableObject with all numbers from data-model.md in `Assets/Game/Scripts/Game/GameConfig.cs`, and create `Assets/Game/Data/GameConfig.asset`
 - [ ] T010 [P] Write tests for `GameFlowMachine` transitions（Title→Playing、Pause/Resume、Dying→Playing/GameOver、Restart from any state）in `Assets/Tests/CryptEscape/EditMode/GameFlowMachineTests.cs`
 - [ ] T011 Implement `GameFlowMachine`（data-model の GameFlow）in `Assets/Game/Scripts/Core/GameFlowMachine.cs` so T010 passes
-- [ ] T012 Implement `GameDirector` skeleton（公開フィールドは `contracts/cli-state.md` の全項目、Update で入力→GameFlowMachine）in `Assets/Game/Scripts/Game/GameDirector.cs`, attach to `/Game`
+- [ ] T012 Implement `SceneDirector`（Additive の読み込み・破棄を順番に処理、読み込み中フラグ、loadedScenes）in `Assets/Game/Scripts/Game/SceneDirector.cs` and `GameDirector` skeleton（公開フィールドは `contracts/cli-state.md` の全項目、画面遷移ごとに SceneDirector でシーン・ダイアログを読み込み/破棄）in `Assets/Game/Scripts/Game/GameDirector.cs`, attach both to `/Game` in Boot
 - [ ] T013 [P] Create placeholder materials（player blue, slime green, goblin brown, boss purple, coin gold, altar cyan, potion red, floor, wall）in `Assets/Game/Materials/`
 - [ ] T014 Verify foundation: Play → `GameDirector.flow` が "Title"、Enter で "Playing" になる（unity-cli で入力・再取得）
 

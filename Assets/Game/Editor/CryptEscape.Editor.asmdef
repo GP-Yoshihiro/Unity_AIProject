@@ -1,0 +1,20 @@
+{
+    "name": "CryptEscape.Editor",
+    "rootNamespace": "CryptEscape.EditorTools",
+    "references": [
+        "CryptEscape",
+        "Unity.InputSystem",
+        "UnityEngine.UI"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
