@@ -6,6 +6,24 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/SampleScene.unity
-    guid: d42492c8af77fcf408086ee07c8fa616
+    path: Assets/Game/Scenes/Boot.unity
+    guid: a9d45ca2f7c6ae04f8dbf10ed6a0eda6
+  - enabled: 1
+    path: Assets/Game/Scenes/Title.unity
+    guid: 2571818e3ca9f3541a09499ec30b4482
+  - enabled: 1
+    path: Assets/Game/Scenes/Dungeon.unity
+    guid: 74b770277b5ecb249a7a20e304a2c088
+  - enabled: 1
+    path: Assets/Game/Scenes/HUD.unity
+    guid: 359a5e744277c1445a9de1f3f718d538
+  - enabled: 1
+    path: Assets/Game/Scenes/PauseDialog.unity
+    guid: bbfb7b0218a62524a8716451b67a930a
+  - enabled: 1
+    path: Assets/Game/Scenes/GameOverDialog.unity
+    guid: 819021de4367efb4fa597789d0b0a6d8
+  - enabled: 1
+    path: Assets/Game/Scenes/ClearDialog.unity
+    guid: 2992021deb2104442b3f079665705542
   m_configObjects: {}
