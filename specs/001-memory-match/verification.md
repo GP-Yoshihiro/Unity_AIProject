@@ -1,15 +1,15 @@
 # 検証記録: 神経衰弱（Memory Match）
 
-日付: 2026-11-24 ／ Unity 6000.6.4f1 ／ unity-cli・Bridge 0.19.1（versionCheck: match）／ compile error 0 ／ EditMode 71/71 合格（失敗0・スキップ0、runId 照合済み）
+日付: 2026-11-24 ／ Unity 6000.6.4f1 ／ unity-cli・Bridge 0.19.1（versionCheck: match）／ compile error 0 ／ EditMode 77/77 合格（失敗0・スキップ0、runId 照合済み）
 
 ## 方法
 
 - 操作: Play 中に `input_keyboard` でキーを送る。配置の再現のため、Edit Mode でシード7を設定（シーンには保存しない）
 - 状態の根拠: `get_component_values` で `Game` / `MemoryGame` を取得。裏のカードは `--` としか取得できず、自分でめくって見えた絵柄だけを記憶した。状態の書き換えはしていない
 - 画面の根拠: `evidence/` のGame画像。並べて開き、盤面・表示の文字を目で確認した
-- 再実行: `tools/verify_solo.ps1` `verify_difficulty.ps1` `verify_vs.ps1` `verify_multi.ps1` `verify_effects.ps1`（先に `. tools/mm.ps1; UseSeed 7`、最後に `ReloadScene`）
+- 再実行: `tools/verify_solo.ps1` `verify_difficulty.ps1` `verify_vs.ps1` `verify_multi.ps1` `verify_effects.ps1` `verify_look.ps1`（先に `. tools/mm.ps1; UseSeed 7`、最後に `ReloadScene`）
 
-## 結果（v1.3 の最終状態で全て再実行、NG 0）
+## 結果（v1.4 の最終状態で全て再実行、NG 0）
 
 | 条件 | 操作 | 期待 | 実際 | 画像 | 判定 |
 |------|------|------|------|------|------|
@@ -40,6 +40,10 @@
 | E3 | CPUが成立 | CPUのコンボ数で演出 | 段階1、+100（CPUの2連続以上は未観測） | E3_cpu_combo | 一部未確認 |
 | E4 | 演出中に矢印・R・Esc、放置 | 受け付ける、R/Escで消える、元の位置に戻る | 同じ（Stage は 0,0 に戻る） | — | 確認済み（状態） |
 | E5 | めくる・ミス | 弾む・揺れる、コンボ演出は出ない | ミスで演出なし（状態）。ミスの揺れは作業中の画像で確認、弾みは画像から判別しにくい | — | 一部未確認 |
+| V1 | 4人対人・対CPU | 枠内の名前・点数・ペア数が状態と一致、手番だけ TURN | 一致（Text を取得して照合） | V1_versus4, V1_vscpu | 確認済み |
+| V2 | 1人用 | 4項目が枠に収まる | PAIRS / MISS / SCORE / COMBO | V2_solo | 確認済み |
+| V3 | カードをめくる | 角の数字とスート、個数どおりのマーク、絵札、模様の背 | 同じ（マークの個数・配置は UT-16） | V1_versus4 | 確認済み |
+| V4 | 全モード | 縁のある緑のテーブルに重ならず収まる、持ち主色のチップ | 同じ。5桁の点数と16:9以外の大きく違う画面比は未確認 | V4_menu, V1_*, B4_*, D2_* | 一部未確認 |
 
 ## 未確認（隠さず残す）
 
@@ -60,5 +64,5 @@
 
 ## TDDの記録
 
-T003〜T008、T013〜T017、T020〜T023、T028 は、失敗（Red）を実行で確認してから実装した（T020のRedでは、仮実装と値が同じケースは最初から合格し、値の違う2件が失敗）。T022 では Red 確認後に `UT11_FewerPairsCanWinByCombo` の場面を名前どおりのものへ差し替えた。T023 の最初の実行は編集が適用されておらず無効とし、やり直した。
+T003〜T008、T013〜T017、T020〜T023、T028、T032 は、失敗（Red）を実行で確認してから実装した（T020のRedでは、仮実装と値が同じケースは最初から合格し、値の違う2件が失敗）。T022 では Red 確認後に `UT11_FewerPairsCanWinByCombo` の場面を名前どおりのものへ差し替えた。T023 の最初の実行は編集が適用されておらず無効とし、やり直した。
 `VisibleSymbolAt` は T009 で表示のために追加し、専用テストは T021（UT14）で加えた。

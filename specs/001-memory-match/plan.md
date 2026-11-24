@@ -60,6 +60,7 @@ specs/001-memory-match/  interview, spec, plan, tasks, verification, evidence/
 - カードは Card_00〜Card_51 をシーンに置き、使う枚数だけ表示して並べる
 - **EffectLevel（v1.3、Core）**: コンボ数から段階と、粒の数・文字の大きさ・揺れ・閃光の強さを決める
 - **ComboEffects（Unity）**: 演出の再生だけを担う。盤面は `Stage` の子に置き、揺れは Stage だけを動かす。CLIで読む名前: `Level` `ComboShown` `PointsShown` `ActiveParticles` `IsPlaying` `PlayCount`
+- **TrumpFace（v1.4、Core）**: 数字・スート・赤黒・絵札か・マークの配置。**TableArt（Unity）**: テーブル、カードの面と背、枠の絵を実行時にコードで描く（外部アセットなし）。**ArtImage**: Image に TableArt を当てる。**StatPanel**: 得点枠（`StatPanel_0`〜`3`）
 - **MenuState**: モードと人数の選択（純粋なC#）
 - **CLIで読む名前（追加）**: `Combo` `Mode` `PlayerCount` `CurrentPlayer` `Pairs` `Scores` `Owners` `Result` `Columns`
 - 表示: uGUI。`Card_00`から行優先。記号と色で区別

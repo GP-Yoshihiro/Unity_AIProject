@@ -15,19 +15,22 @@ namespace MemoryMatch
         private const float CpuStepSeconds = 0.8f;
         private const float CpuShowMissSeconds = 1.5f;
 
-        private const float BoardCenterY = 5f;
-        private static readonly Vector2 BoardSize = new Vector2(1240f, 560f);
+        private const float CardAspect = 0.72f;
+        private const float BoardCenterY = -42f;
+        private static readonly Vector2 BoardSize = new Vector2(1200f, 516f);
+        private static readonly Color SoloColor = new Color(0.32f, 0.24f, 0.1f);
+        private static readonly Color[] PlayerColors =
+        {
+            new Color(0.15f, 0.38f, 0.78f), new Color(0.75f, 0.16f, 0.18f), new Color(0.8f, 0.48f, 0.08f), new Color(0.5f, 0.24f, 0.68f),
+        };
 
         [SerializeField] private bool useFixedSeed;
         [SerializeField] private int fixedSeed = 1;
         [SerializeField] private CardView[] cards;
         [SerializeField] private RectTransform cursorFrame;
         [SerializeField] private ComboEffects effects;
-        [SerializeField] private Text matchedText;
-        [SerializeField] private Text missesText;
-        [SerializeField] private Text scoreText;
-        [SerializeField] private Text comboText;
-        [SerializeField] private Text playersText;
+        [SerializeField] private StatPanel[] statPanels;
+        [SerializeField] private GameObject tableObjects;
         [SerializeField] private GameObject resultPanel;
         [SerializeField] private Text resultText;
         [SerializeField] private GameObject menuPanel;
@@ -205,29 +208,24 @@ namespace MemoryMatch
         {
             bool inMenu = _logic == null;
             menuPanel.SetActive(inMenu);
+            tableObjects.SetActive(!inMenu);
             if (inMenu)
             {
                 menuText.text = DescribeMenu();
                 resultPanel.SetActive(false);
+                foreach (var panel in statPanels) panel.gameObject.SetActive(false);
                 return;
             }
 
             for (int i = 0; i < _logic.Spec.CardCount; i++)
             {
                 if (_logic.FaceAt(i) == CardFace.Down) cards[i].ShowBack();
-                else cards[i].ShowFront(_logic.VisibleSymbolAt(i), _logic.Spec.IsTrump, _logic.FaceAt(i) == CardFace.Matched, OwnerLabel(i));
+                else cards[i].ShowFront(_logic.VisibleSymbolAt(i), _logic.Spec.IsTrump, _logic.FaceAt(i) == CardFace.Matched, OwnerLabel(i), OwnerColor(i));
             }
             cursorFrame.anchoredPosition = ((RectTransform)cards[_logic.Cursor].transform).anchoredPosition;
 
             bool versus = _logic.IsVersus;
-            foreach (var solo in new[] { matchedText, missesText, scoreText, comboText }) solo.gameObject.SetActive(!versus);
-            playersText.gameObject.SetActive(versus);
-            matchedText.text = $"PAIRS {_logic.Matched}/{_logic.Spec.PairCount}";
-            missesText.text = $"MISS {_logic.Misses}/{_logic.Spec.MissLimit}";
-            scoreText.text = $"SCORE {_logic.Score}";
-            comboText.text = $"COMBO {_logic.Combo}";
-            playersText.text = string.Join("     ", Players().Select(p => $"{(p == _logic.CurrentPlayer && !IsOver ? "> " : "")}{NameOf(p)}  {_logic.ScoreOf(p)} pt ({_logic.PairsOf(p)})  COMBO {_logic.ComboOf(p)}"));
-            playersText.fontSize = _logic.PlayerCount <= 2 ? 28 : _logic.PlayerCount == 3 ? 24 : 20;
+            RenderPanels(versus);
             resultText.text = DescribeResult();
             resultPanel.SetActive(IsOver);
             if (IsOver) PlaceResult(versus);
@@ -237,8 +235,10 @@ namespace MemoryMatch
         private void LayOutBoard()
         {
             var spec = _logic.Spec;
-            var cell = new Vector2(Mathf.Min(150f, BoardSize.x / spec.Columns), Mathf.Min(180f, BoardSize.y / spec.Rows));
-            var size = cell * 0.88f;
+            float cellHeight = Mathf.Min(174f, BoardSize.y / spec.Rows);
+            float height = Mathf.Min(cellHeight * 0.93f, BoardSize.x / spec.Columns * 0.92f / CardAspect);
+            var size = new Vector2(height * CardAspect, height);
+            var cell = new Vector2(Mathf.Min(BoardSize.x / spec.Columns, size.x * 1.3f), cellHeight);
             for (int i = 0; i < cards.Length; i++)
             {
                 cards[i].gameObject.SetActive(i < spec.CardCount);
@@ -247,17 +247,42 @@ namespace MemoryMatch
                 float y = ((spec.Rows - 1) / 2f - i / spec.Columns) * cell.y + BoardCenterY;
                 cards[i].Place(new Vector2(x, y), size);
             }
-            cursorFrame.sizeDelta = size + Vector2.one * 12f;
+            cursorFrame.sizeDelta = size + Vector2.one * 14f;
         }
 
         /// <summary>1人用の結果は、最後の2枚を隠さないよう盤面の下に出す。対戦の順位は中央に出す。</summary>
         private void PlaceResult(bool versus)
         {
             var panel = (RectTransform)resultPanel.transform;
-            panel.anchoredPosition = versus ? Vector2.zero : new Vector2(0f, -320f);
-            panel.sizeDelta = versus ? new Vector2(620f, 330f) : new Vector2(620f, 64f);
+            panel.anchoredPosition = versus ? Vector2.zero : new Vector2(0f, -321f);
+            panel.sizeDelta = versus ? new Vector2(620f, 330f) : new Vector2(620f, 44f);
             if (!versus) resultText.text += "   (R: Restart)";
-            resultText.fontSize = versus ? 54 : 38;
+            resultText.fontSize = versus ? 48 : 28;
+        }
+
+        /// <summary>対戦はプレイヤーごと、1人用は項目ごとに枠を出す。</summary>
+        private void RenderPanels(bool versus)
+        {
+            int count = versus ? _logic.PlayerCount : statPanels.Length;
+            float width = versus ? Mathf.Min(340f, 1196f / count - 10f) : 230f;
+            for (int i = 0; i < statPanels.Length; i++)
+            {
+                statPanels[i].gameObject.SetActive(i < count);
+                if (i < count) statPanels[i].Place(new Vector2((i - (count - 1) / 2f) * (width + 10f), 276f), new Vector2(width, 100f));
+            }
+
+            if (versus)
+            {
+                foreach (int p in Players())
+                {
+                    statPanels[p].Show(NameOf(p), $"{_logic.ScoreOf(p):#,0}", $"PAIRS  {_logic.PairsOf(p)}\nCOMBO {_logic.ComboOf(p)}", PlayerColors[p], p == _logic.CurrentPlayer && !IsOver);
+                }
+                return;
+            }
+            statPanels[0].Show("PAIRS", $"{_logic.Matched} / {_logic.Spec.PairCount}", "", SoloColor, false);
+            statPanels[1].Show("MISS", $"{_logic.Misses} / {_logic.Spec.MissLimit}", "", SoloColor, false);
+            statPanels[2].Show("SCORE", $"{_logic.Score:#,0}", "", SoloColor, false);
+            statPanels[3].Show("COMBO", _logic.Combo.ToString(), "", SoloColor, false);
         }
 
         private IEnumerable<int> Players() => Enumerable.Range(0, _logic.PlayerCount);
@@ -266,13 +291,15 @@ namespace MemoryMatch
 
         private string OwnerLabel(int index) => _logic.IsVersus && _logic.OwnerAt(index) >= 0 ? NameOf(_logic.OwnerAt(index)) : "";
 
+        private Color OwnerColor(int index) => _logic.OwnerAt(index) < 0 ? Color.white : PlayerColors[_logic.OwnerAt(index)];
+
         private string DescribeMenu()
         {
             string Row(GameMode mode, string label) => (_menu.Mode == mode ? "> " : "   ") + label;
             string option = _menu.Mode == GameMode.Solo
                 ? $"< {_menu.DifficultyName}  {_menu.Spec.CardCount} CARDS >"
                 : $"< {_menu.PlayerCount} PLAYERS >  TRUMP {_menu.Spec.CardCount} CARDS";
-            return $"MEMORY MATCH\n\n{Row(GameMode.Solo, "SOLO")}\n{Row(GameMode.VsCpu, "VS CPU")}\n{Row(GameMode.VsHuman, "VS PLAYERS")}\n\n{option}";
+            return $"{Row(GameMode.Solo, "SOLO")}\n{Row(GameMode.VsCpu, "VS CPU")}\n{Row(GameMode.VsHuman, "VS PLAYERS")}\n\n{option}";
         }
 
         private string DescribeResult()

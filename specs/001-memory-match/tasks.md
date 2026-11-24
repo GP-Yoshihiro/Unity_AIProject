@@ -21,6 +21,7 @@
 | FR-13 | D1〜D3 | UT-13 DifficultyTests, MenuTests | T020, T023 |
 | FR-14 | B8 | UT-14 TrumpTests | T021 |
 | FR-15 | E1〜E5 | UT-15 EffectLevelTests | T028, T029 |
+| FR-16 | V1〜V4 | UT-16 TrumpFaceTests | T032, T033 |
 | SC-001〜004 | M1〜M6 | AIプレイ | T010〜T011 |
 
 ## Phase 1: 準備
@@ -70,6 +71,13 @@
 - [X] T028 [US7] FR-15: 段階ごとに強さが増え5で最大になる失敗テストと最小実装
 - [X] T029 [US7] ComboEffects と、めくり・ミスの動き、コンボ数表示を実装しシーンへ接続する
 - [X] T030 E1〜E5 をAIプレイで実証し、M1〜M6・D・B の回帰を確認して記録する
+
+## Phase 7: 見た目（SPEC改訂 v1.4 のあと）
+
+- [X] T031 V1〜V4 を spec.md に追記する
+- [X] T032 [US8] FR-16: カード面の数字・スート・マーク配置の失敗テストと最小実装
+- [X] T033 [US8] テーブル・カード・得点枠を実装しシーンへ接続する
+- [X] T034 V1〜V4 をAIプレイと画像で実証し、全条件の回帰を確認して記録する
 
 ## Analyze 結果（実装前）
 
