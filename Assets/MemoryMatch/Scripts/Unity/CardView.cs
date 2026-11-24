@@ -19,24 +19,21 @@ namespace MemoryMatch
 
         [SerializeField] private Image background;
         [SerializeField] private Text symbol;
-
-        public void Bind(Image image, Text text)
-        {
-            background = image;
-            symbol = text;
-        }
+        [SerializeField] private Text owner;
 
         public void ShowBack()
         {
             background.color = BackColor;
             symbol.text = "";
+            owner.text = "";
         }
 
-        public void ShowFront(int symbolId, bool matched)
+        public void ShowFront(int symbolId, bool matched, string ownerLabel)
         {
             background.color = matched ? MatchedColor : FrontColor;
             symbol.text = Symbols[symbolId];
             symbol.color = SymbolColors[symbolId];
+            owner.text = ownerLabel;
         }
     }
 }
