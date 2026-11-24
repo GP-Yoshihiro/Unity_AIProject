@@ -53,9 +53,12 @@ specs/001-memory-match/  interview, spec, plan, tasks, verification, evidence/
 - **MemoryGame**: GameObject `Game` に付く。入力を Logic に渡し、結果を表示する
 - **CLIで読む名前**（`Game` / `MemoryGame` の公開プロパティ）: `Phase` `Matched` `Misses` `Score` `Cursor` `Cards`
 - `Cards` は裏のカードを `--` とし、絵柄を出さない。CardView も裏の間は絵柄を持たない（覗き防止）
-- **対戦（v1.1）**: MemoryLogic を人数つきにする（1なら1人用のルール、2以上なら対戦）。`CurrentPlayer` `OwnerAt` `PairsOf` `Winners`
+- **対戦（v1.1）**: MemoryLogic を人数つきにする（1なら1人用のルール、2以上なら対戦）。`CurrentPlayer` `OwnerAt` `PairsOf`
 - **CpuMemory / CpuPlayer**: 公開されたカードの観測だけを受け取る。MemoryLogic の配置は参照せず、`VisibleSymbolAt`（裏なら-1）から得る
+- **BoardSpec（v1.2）**: 盤面の種類（Easy / Normal / Hard / Trump）。列・行・ミス上限・カード一覧・ペアの判定キーを持ち、MemoryLogic と DeckShuffler に渡す。CPUが観測するのも判定キー
+- 順位は `RankOf`、スコアは `ScoreOf` / `ComboOf`（プレイヤー別）。旧 `Winners` は置き換え
+- カードは Card_00〜Card_51 をシーンに置き、使う枚数だけ表示して並べる
 - **MenuState**: モードと人数の選択（純粋なC#）
-- **CLIで読む名前（追加）**: `Combo` `Mode` `PlayerCount` `CurrentPlayer` `Pairs` `Owners` `Result`
-- 表示: uGUI。`Card_00`〜`Card_11`（行優先、4列×3行）。記号と色で区別
+- **CLIで読む名前（追加）**: `Combo` `Mode` `PlayerCount` `CurrentPlayer` `Pairs` `Scores` `Owners` `Result` `Columns`
+- 表示: uGUI。`Card_00`から行優先。記号と色で区別
 - 裏で Editor が止まらないよう `Application.runInBackground` を実行時に設定（ProjectSettings は変えない）
