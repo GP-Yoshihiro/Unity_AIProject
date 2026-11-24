@@ -1,6 +1,6 @@
 # CryptEscape helpers (dot-source)
 $script:u = "$HOME\.unity\tools\unity-cli\win-x64\unity-cli.exe"
-Set-Location C:\Users\koyo\Desktop\AI
+Set-Location (Resolve-Path "$PSScriptRoot/../../..")
 
 function UC([string]$tool, [string]$json = '{}') {
     & $script:u --output json raw $tool --json $json 2>$null | ConvertFrom-Json

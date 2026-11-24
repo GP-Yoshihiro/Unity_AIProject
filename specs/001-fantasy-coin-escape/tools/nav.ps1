@@ -1,5 +1,5 @@
 # Navigation helpers for CryptEscape play tests (dot-source after ce.ps1)
-$script:Layout = Get-Content C:\Users\koyo\Desktop\AI\Assets\Game\Data\DungeonLayout.txt | Where-Object { $_.Length -gt 0 -and -not $_.StartsWith('# ') }
+$script:Layout = Get-Content "$PSScriptRoot/../../../Assets/Game/Data/DungeonLayout.txt" | Where-Object { $_.Length -gt 0 -and -not $_.StartsWith('# ') }
 $script:H = $script:Layout.Count
 $script:W = ($script:Layout | Measure-Object -Property Length -Maximum).Maximum
 $script:Speed = 6.0
@@ -43,7 +43,7 @@ function Bfs($from, $to, [string]$blocked = '#') {
         $path.Insert(0, $node)
         $node = $prev["$($node.r),$($node.c)"]
     }
-    return $path
+    return ,$path   # 要素1個のリストが展開されないようにする
 }
 
 function Segments($path) {
@@ -56,7 +56,7 @@ function Segments($path) {
         $d2r = $path[$i + 1].r - $path[$i].r; $d2c = $path[$i + 1].c - $path[$i].c
         if ($d1r -ne $d2r -or $d1c -ne $d2c) { $corners.Add($path[$i]) }
     }
-    return $corners
+    return ,$corners   # 要素1個だと展開され、[0] が空になって (0,0) へ向かっていた
 }
 
 function HoldKey([string]$key, [double]$sec) {
