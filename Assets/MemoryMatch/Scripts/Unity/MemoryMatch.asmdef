@@ -1,0 +1,1 @@
+{ "name": "MemoryMatch", "rootNamespace": "MemoryMatch", "references": ["MemoryMatch.Core", "Unity.InputSystem", "UnityEngine.UI"], "autoReferenced": true }
