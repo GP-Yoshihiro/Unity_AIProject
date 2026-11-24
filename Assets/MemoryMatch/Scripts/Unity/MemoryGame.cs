@@ -19,6 +19,13 @@ namespace MemoryMatch
         [SerializeField] private Text scoreText;
         [SerializeField] private Text resultText;
 
+        private readonly KeyEdge _left = new KeyEdge(Key.LeftArrow);
+        private readonly KeyEdge _right = new KeyEdge(Key.RightArrow);
+        private readonly KeyEdge _up = new KeyEdge(Key.UpArrow);
+        private readonly KeyEdge _down = new KeyEdge(Key.DownArrow);
+        private readonly KeyEdge _space = new KeyEdge(Key.Space);
+        private readonly KeyEdge _restart = new KeyEdge(Key.R);
+
         private DeckShuffler _shuffler;
         private MemoryLogic _logic;
 
@@ -44,13 +51,16 @@ namespace MemoryMatch
             var kb = Keyboard.current;
             if (kb == null) return;
 
+            bool left = _left.Poll(kb), right = _right.Poll(kb), up = _up.Poll(kb), down = _down.Poll(kb);
+            bool space = _space.Poll(kb), restart = _restart.Poll(kb);
+
             bool changed = true;
-            if (kb.rKey.wasPressedThisFrame) _logic.Restart(_shuffler.Next());
-            else if (kb.leftArrowKey.wasPressedThisFrame) _logic.MoveCursor(-1, 0);
-            else if (kb.rightArrowKey.wasPressedThisFrame) _logic.MoveCursor(1, 0);
-            else if (kb.upArrowKey.wasPressedThisFrame) _logic.MoveCursor(0, -1);
-            else if (kb.downArrowKey.wasPressedThisFrame) _logic.MoveCursor(0, 1);
-            else if (kb.spaceKey.wasPressedThisFrame) _logic.PressSpace();
+            if (restart) _logic.Restart(_shuffler.Next());
+            else if (left) _logic.MoveCursor(-1, 0);
+            else if (right) _logic.MoveCursor(1, 0);
+            else if (up) _logic.MoveCursor(0, -1);
+            else if (down) _logic.MoveCursor(0, 1);
+            else if (space) _logic.PressSpace();
             else changed = false;
 
             if (changed) Render();
