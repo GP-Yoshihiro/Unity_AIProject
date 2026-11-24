@@ -20,6 +20,7 @@
 | FR-09 | B1, B7 | UT-09 MenuTests | T017 |
 | FR-13 | D1〜D3 | UT-13 DifficultyTests, MenuTests | T020, T023 |
 | FR-14 | B8 | UT-14 TrumpTests | T021 |
+| FR-15 | E1〜E5 | UT-15 EffectLevelTests | T028, T029 |
 | SC-001〜004 | M1〜M6 | AIプレイ | T010〜T011 |
 
 ## Phase 1: 準備
@@ -62,6 +63,13 @@
 - [X] T024 可変の盤面・トランプ表示・得点・順位・難易度選択をシーンへ接続し保存する
 - [X] T025 A1〜A4、B1〜B8、D1〜D3 をAIプレイで実証し、M1〜M6 の回帰を確認、verification.md に記録する
 - [X] T026 終了処理（入力解除・Stop・保存）、コミット、push
+
+## Phase 6: 演出（SPEC改訂 v1.3 のあと）
+
+- [X] T027 演出とコンボ数の条件 E1〜E5 を spec.md に追記する
+- [X] T028 [US7] FR-15: 段階ごとに強さが増え5で最大になる失敗テストと最小実装
+- [X] T029 [US7] ComboEffects と、めくり・ミスの動き、コンボ数表示を実装しシーンへ接続する
+- [X] T030 E1〜E5 をAIプレイで実証し、M1〜M6・D・B の回帰を確認して記録する
 
 ## Analyze 結果（実装前）
 

@@ -58,6 +58,8 @@ specs/001-memory-match/  interview, spec, plan, tasks, verification, evidence/
 - **BoardSpec（v1.2）**: 盤面の種類（Easy / Normal / Hard / Trump）。列・行・ミス上限・カード一覧・ペアの判定キーを持ち、MemoryLogic と DeckShuffler に渡す。CPUが観測するのも判定キー
 - 順位は `RankOf`、スコアは `ScoreOf` / `ComboOf`（プレイヤー別）。旧 `Winners` は置き換え
 - カードは Card_00〜Card_51 をシーンに置き、使う枚数だけ表示して並べる
+- **EffectLevel（v1.3、Core）**: コンボ数から段階と、粒の数・文字の大きさ・揺れ・閃光の強さを決める
+- **ComboEffects（Unity）**: 演出の再生だけを担う。盤面は `Stage` の子に置き、揺れは Stage だけを動かす。CLIで読む名前: `Level` `ComboShown` `PointsShown` `ActiveParticles` `IsPlaying` `PlayCount`
 - **MenuState**: モードと人数の選択（純粋なC#）
 - **CLIで読む名前（追加）**: `Combo` `Mode` `PlayerCount` `CurrentPlayer` `Pairs` `Scores` `Owners` `Result` `Columns`
 - 表示: uGUI。`Card_00`から行優先。記号と色で区別

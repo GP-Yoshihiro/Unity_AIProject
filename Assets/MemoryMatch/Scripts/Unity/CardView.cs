@@ -27,6 +27,10 @@ namespace MemoryMatch
         [SerializeField] private Text symbol;
         [SerializeField] private Text owner;
 
+        private const float MotionSeconds = 0.45f;
+        private float _bounceAge = float.MaxValue;
+        private float _wiggleAge = float.MaxValue;
+
         public void ShowBack()
         {
             background.color = BackColor;
@@ -51,6 +55,37 @@ namespace MemoryMatch
                 symbol.text = Symbols[card];
                 symbol.color = SymbolColors[card];
                 symbol.fontSize = Mathf.RoundToInt(unit * 0.62f);
+            }
+        }
+
+        /// <summary>めくったときに弾む。</summary>
+        public void Bounce() => _bounceAge = 0f;
+
+        /// <summary>ミスしたときに左右へ揺れる。</summary>
+        public void Wiggle() => _wiggleAge = 0f;
+
+        public void ResetMotion()
+        {
+            _bounceAge = _wiggleAge = float.MaxValue;
+            transform.localScale = Vector3.one;
+            transform.localRotation = Quaternion.identity;
+        }
+
+        private void Update()
+        {
+            if (_bounceAge < MotionSeconds)
+            {
+                _bounceAge += Time.deltaTime;
+                float k = Mathf.Clamp01(1f - _bounceAge / MotionSeconds);
+                transform.localScale = Vector3.one * (1f + 0.18f * k * Mathf.Cos(_bounceAge * 22f));
+                if (_bounceAge >= MotionSeconds) transform.localScale = Vector3.one;
+            }
+            if (_wiggleAge < MotionSeconds)
+            {
+                _wiggleAge += Time.deltaTime;
+                float k = Mathf.Clamp01(1f - _wiggleAge / MotionSeconds);
+                transform.localRotation = Quaternion.Euler(0f, 0f, 9f * k * Mathf.Sin(_wiggleAge * 40f));
+                if (_wiggleAge >= MotionSeconds) transform.localRotation = Quaternion.identity;
             }
         }
 

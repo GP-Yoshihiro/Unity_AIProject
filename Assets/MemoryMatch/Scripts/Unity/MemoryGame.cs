@@ -22,6 +22,7 @@ namespace MemoryMatch
         [SerializeField] private int fixedSeed = 1;
         [SerializeField] private CardView[] cards;
         [SerializeField] private RectTransform cursorFrame;
+        [SerializeField] private ComboEffects effects;
         [SerializeField] private Text matchedText;
         [SerializeField] private Text missesText;
         [SerializeField] private Text scoreText;
@@ -60,6 +61,7 @@ namespace MemoryMatch
         public int Rows => _logic?.Spec.Rows ?? 0;
         public int MissLimit => _logic?.Spec.MissLimit ?? 0;
         public string Difficulty => _menu.Mode == GameMode.Solo ? _menu.DifficultyName : "";
+        public string Combos => _logic == null ? "" : string.Join(" ", Players().Select(p => _logic.ComboOf(p)));
         public string Scores => _logic == null ? "" : string.Join(" ", Players().Select(p => _logic.ScoreOf(p)));
         public string Result => DescribeResult();
 
@@ -109,7 +111,11 @@ namespace MemoryMatch
                 return true;
             }
 
-            if (escape) _logic = null;
+            if (escape)
+            {
+                _logic = null;
+                ResetMotion();
+            }
             else if (restart) StartGame();
             else if (IsCpuTurn) return false;
             else if (dx != 0 || dy != 0) _logic.MoveCursor(dx, dy);
@@ -118,8 +124,15 @@ namespace MemoryMatch
             return true;
         }
 
+        private void ResetMotion()
+        {
+            effects.StopAll();
+            foreach (var card in cards) card.ResetMotion();
+        }
+
         private void StartGame()
         {
+            ResetMotion();
             var deck = _shuffler.Next(_menu.Spec);
             if (_logic == null)
             {
@@ -134,15 +147,36 @@ namespace MemoryMatch
 
         private void PressSpace()
         {
+            int player = _logic.CurrentPlayer;
+            int matchedBefore = _logic.Matched;
+            int scoreBefore = _logic.ScoreOf(player);
+            var phaseBefore = _logic.Phase;
+            int[] upBefore = FaceUpCards();
             _logic.PressSpace();
             _cpuTimer = 0f;
             for (int i = 0; i < _wasVisible.Length; i++)
             {
                 bool visible = _logic.FaceAt(i) != CardFace.Down;
-                if (visible && !_wasVisible[i]) _cpu.Observe(i, _logic.VisibleKeyAt(i));
+                if (visible && !_wasVisible[i])
+                {
+                    _cpu.Observe(i, _logic.VisibleKeyAt(i));
+                    cards[i].Bounce();
+                }
                 _wasVisible[i] = visible;
             }
+
+            if (_logic.Matched > matchedBefore)
+            {
+                var origins = upBefore.Append(_logic.Cursor).Select(i => ((RectTransform)cards[i].transform).anchoredPosition).ToArray();
+                effects.PlayMatch(origins, _logic.ComboOf(player), _logic.ScoreOf(player) - scoreBefore);
+            }
+            else if (phaseBefore == GamePhase.PickSecond && _logic.Phase != GamePhase.PickSecond)
+            {
+                foreach (int i in FaceUpCards()) cards[i].Wiggle();
+            }
         }
+
+        private int[] FaceUpCards() => Enumerable.Range(0, _logic.Spec.CardCount).Where(i => _logic.FaceAt(i) == CardFace.Up).ToArray();
 
         private bool StepCpu()
         {
@@ -192,7 +226,8 @@ namespace MemoryMatch
             missesText.text = $"MISS {_logic.Misses}/{_logic.Spec.MissLimit}";
             scoreText.text = $"SCORE {_logic.Score}";
             comboText.text = $"COMBO {_logic.Combo}";
-            playersText.text = string.Join("     ", Players().Select(p => $"{(p == _logic.CurrentPlayer && !IsOver ? "> " : "")}{NameOf(p)}  {_logic.ScoreOf(p)} pt ({_logic.PairsOf(p)})"));
+            playersText.text = string.Join("     ", Players().Select(p => $"{(p == _logic.CurrentPlayer && !IsOver ? "> " : "")}{NameOf(p)}  {_logic.ScoreOf(p)} pt ({_logic.PairsOf(p)})  COMBO {_logic.ComboOf(p)}"));
+            playersText.fontSize = _logic.PlayerCount <= 2 ? 28 : _logic.PlayerCount == 3 ? 24 : 20;
             resultText.text = DescribeResult();
             resultPanel.SetActive(IsOver);
             if (IsOver) PlaceResult(versus);

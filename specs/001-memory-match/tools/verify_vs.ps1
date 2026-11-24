@@ -8,7 +8,7 @@ $blocked=$false;$cpuPairs=0;$shotMiss=$false;$shotTake=$false;$bad=0;$hm=0;$ht=0
 $sw=[Diagnostics.Stopwatch]::StartNew()
 while (($v=V).Phase -notin 'Cleared','GameOver' -and $sw.Elapsed.TotalSeconds -lt 520) {
   if ([int]$v.CurrentPlayer -eq 1) {
-    if ($v.Phase -eq 'ShowingMiss' -and -not $shotCpu -and $blocked) { Shot 'B5_cpu_miss'; $shotCpu=$true }; if ($v.Phase -ne 'PickFirst') { (Up $v).GetEnumerator() | % { $know[$_.Key]=$_.Value } }
+    if ($v.Phase -eq 'ShowingMiss' -and -not $shotCpu -and $blocked) { Shot 'B5_after_cpu_turn'; $shotCpu=$true }; if ($v.Phase -ne 'PickFirst') { (Up $v).GetEnumerator() | % { $know[$_.Key]=$_.Value } }
     if (-not $blocked -and $v.Phase -eq 'ShowingMiss') { $u0=$v.Cards; $c0=$v.Cursor; FastKey 'space'; FastKey 'upArrow'; FastKey 'leftArrow'; $n=V; if ($n.Phase -eq 'ShowingMiss') { Chk2 'B5 CPU手番中は矢印・Spaceが効かない' ($n.Cards -eq $u0 -and $n.Cursor -eq $c0) $n; $blocked=$true } }
     Start-Sleep -Milliseconds 120; continue }
   if ($v.Phase -eq 'ShowingMiss') { FastKey 'space'; Start-Sleep -Milliseconds 150; $n=V; if ([int]$n.CurrentPlayer -ne 1) { $bad++; "   NG 交代しない $(VS $n)" }; $cpuT++; continue }
