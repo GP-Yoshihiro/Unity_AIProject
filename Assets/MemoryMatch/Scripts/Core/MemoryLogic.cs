@@ -11,50 +11,49 @@ namespace MemoryMatch.Core
     /// <summary>神経衰弱のルール。Unity に依存しない。</summary>
     public sealed class MemoryLogic
     {
-        public const int Columns = 4;
-        public const int Rows = 3;
-        public const int CardCount = Columns * Rows;
-        public const int PairCount = CardCount / 2;
-
         public const int MatchScore = 100;
         public const int MaxMultiplier = 5;
         public const int MissPenalty = 10;
-        public const int MissLimit = 5;
 
         private int[] _deck;
-        private readonly CardFace[] _faces = new CardFace[CardCount];
-        private readonly int[] _owners = new int[CardCount];
+        private readonly CardFace[] _faces;
+        private readonly int[] _owners;
         private readonly int[] _pairs;
+        private readonly int[] _scores;
+        private readonly int[] _combos;
         private readonly List<int> _turned = new List<int>();
 
-        public MemoryLogic(int[] deck, int playerCount = 1)
+        public MemoryLogic(int[] deck, int playerCount = 1, BoardSpec spec = null)
         {
+            Spec = spec ?? BoardSpec.Easy;
+            _faces = new CardFace[Spec.CardCount];
+            _owners = new int[Spec.CardCount];
             PlayerCount = playerCount;
             _pairs = new int[playerCount];
+            _scores = new int[playerCount];
+            _combos = new int[playerCount];
             Restart(deck);
         }
 
+        public BoardSpec Spec { get; }
         public int PlayerCount { get; }
         public int CurrentPlayer { get; private set; }
         public int OwnerAt(int index) => _faces[index] == CardFace.Matched ? _owners[index] : -1;
         public bool IsVersus => PlayerCount > 1;
 
-        /// <summary>対戦終了時の最多取得者。複数なら引き分け。それ以外は空。</summary>
-        public int[] Winners
-        {
-            get
-            {
-                if (!IsVersus || Phase != GamePhase.Cleared) return Array.Empty<int>();
-                int best = _pairs.Max();
-                return Enumerable.Range(0, PlayerCount).Where(p => _pairs[p] == best).ToArray();
-            }
-        }
+        public int ScoreOf(int player) => _scores[player];
+        public int ComboOf(int player) => _combos[player];
+
+        /// <summary>スコアの高い順の順位（1〜）。同点は同じ順位。</summary>
+        public int RankOf(int player) => 1 + _scores.Count(s => s > _scores[player]);
+
         public int PairsOf(int player) => _pairs[player];
 
         public int Matched { get; private set; }
         public int Misses { get; private set; }
-        public int Score { get; private set; }
-        public int Combo { get; private set; }
+        /// <summary>手番の人のスコアと連続数（1人用では自分の値）。</summary>
+        public int Score => _scores[CurrentPlayer];
+        public int Combo => _combos[CurrentPlayer];
 
         public GamePhase Phase { get; private set; }
         public int Cursor { get; private set; }
@@ -64,9 +63,9 @@ namespace MemoryMatch.Core
         public void MoveCursor(int dx, int dy)
         {
             if (IsOver) return;
-            int x = Math.Clamp(Cursor % Columns + dx, 0, Columns - 1);
-            int y = Math.Clamp(Cursor / Columns + dy, 0, Rows - 1);
-            Cursor = y * Columns + x;
+            int x = Math.Clamp(Cursor % Spec.Columns + dx, 0, Spec.Columns - 1);
+            int y = Math.Clamp(Cursor / Spec.Columns + dy, 0, Spec.Rows - 1);
+            Cursor = y * Spec.Columns + x;
         }
 
         public void Restart(int[] deck)
@@ -74,9 +73,11 @@ namespace MemoryMatch.Core
             _deck = (int[])deck.Clone();
             Array.Clear(_faces, 0, _faces.Length);
             Array.Clear(_pairs, 0, _pairs.Length);
+            Array.Clear(_scores, 0, _scores.Length);
+            Array.Clear(_combos, 0, _combos.Length);
             CurrentPlayer = 0;
             _turned.Clear();
-            Matched = Misses = Score = Combo = Cursor = 0;
+            Matched = Misses = Cursor = 0;
             Phase = GamePhase.PickFirst;
         }
 
@@ -93,33 +94,27 @@ namespace MemoryMatch.Core
 
         private void Judge()
         {
-            if (_deck[_turned[0]] == _deck[_turned[1]])
+            int player = CurrentPlayer;
+            if (Spec.KeyOf(_deck[_turned[0]]) == Spec.KeyOf(_deck[_turned[1]]))
             {
                 foreach (int i in _turned)
                 {
                     _faces[i] = CardFace.Matched;
-                    _owners[i] = CurrentPlayer;
+                    _owners[i] = player;
                 }
-                _pairs[CurrentPlayer]++;
                 _turned.Clear();
+                _pairs[player]++;
+                _combos[player]++;
+                _scores[player] += MatchScore * Math.Min(_combos[player], MaxMultiplier);
                 Matched++;
-                if (!IsVersus)
-                {
-                    Combo++;
-                    Score += MatchScore * Math.Min(Combo, MaxMultiplier);
-                }
-                Phase = Matched == PairCount ? GamePhase.Cleared : GamePhase.PickFirst;
-            }
-            else if (IsVersus)
-            {
-                Phase = GamePhase.ShowingMiss;
+                Phase = Matched == Spec.PairCount ? GamePhase.Cleared : GamePhase.PickFirst;
             }
             else
             {
-                Combo = 0;
                 Misses++;
-                Score = Math.Max(0, Score - MissPenalty);
-                Phase = Misses == MissLimit ? GamePhase.GameOver : GamePhase.ShowingMiss;
+                _combos[player] = 0;
+                _scores[player] = Math.Max(0, _scores[player] - MissPenalty);
+                Phase = !IsVersus && Misses == Spec.MissLimit ? GamePhase.GameOver : GamePhase.ShowingMiss;
             }
         }
 
@@ -130,6 +125,9 @@ namespace MemoryMatch.Core
             CurrentPlayer = (CurrentPlayer + 1) % PlayerCount;
             Phase = GamePhase.PickFirst;
         }
+
+        /// <summary>見えているカードの判定キー。裏なら -1。</summary>
+        public int VisibleKeyAt(int index) => _faces[index] == CardFace.Down ? -1 : Spec.KeyOf(_deck[index]);
 
         public CardFace FaceAt(int index) => _faces[index];
 

@@ -51,5 +51,35 @@ namespace MemoryMatch.Tests
             m.Move(0, 1);
             Assert.That(m.IsCpu(1), Is.False);
         }
+
+        [Test]
+        public void UT13_SoloChoosesDifficultyHorizontallyAndStopsAtEnds()
+        {
+            var m = new MenuState();
+            Assert.That(m.Spec, Is.SameAs(BoardSpec.Easy));
+            m.Move(-1, 0);
+            Assert.That(m.Spec, Is.SameAs(BoardSpec.Easy));
+            m.Move(1, 0);
+            Assert.That(m.Spec, Is.SameAs(BoardSpec.Normal));
+            m.Move(1, 0);
+            m.Move(1, 0);
+            Assert.That(m.Spec, Is.SameAs(BoardSpec.Hard));
+            Assert.That(m.DifficultyName, Is.EqualTo("HARD"));
+        }
+
+        [Test]
+        public void UT14_VersusAlwaysUsesTrumpAndKeepsSoloDifficulty()
+        {
+            var m = new MenuState();
+            m.Move(1, 0);
+            m.Move(0, 1);
+            Assert.That(m.Spec, Is.SameAs(BoardSpec.Trump));
+            m.Move(1, 0);
+            m.Move(0, 1);
+            Assert.That(m.Spec, Is.SameAs(BoardSpec.Trump));
+            m.Move(0, -1);
+            m.Move(0, -1);
+            Assert.That(m.Spec, Is.SameAs(BoardSpec.Normal));
+        }
     }
 }

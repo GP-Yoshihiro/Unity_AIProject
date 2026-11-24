@@ -9,7 +9,7 @@ namespace MemoryMatch.Tests
         [Test]
         public void UT01_EachSymbolAppearsExactlyTwice()
         {
-            var deck = new DeckShuffler(1).Next();
+            var deck = new DeckShuffler(1).Next(BoardSpec.Easy);
             Assert.That(deck.Length, Is.EqualTo(12));
             for (int s = 0; s < 6; s++) Assert.That(deck.Count(x => x == s), Is.EqualTo(2));
         }
@@ -17,7 +17,7 @@ namespace MemoryMatch.Tests
         [Test]
         public void UT01_StartsAllDownWithZeroCounters()
         {
-            var g = new MemoryLogic(new DeckShuffler(1).Next());
+            var g = new MemoryLogic(new DeckShuffler(1).Next(BoardSpec.Easy));
             for (int i = 0; i < 12; i++) Assert.That(g.FaceAt(i), Is.EqualTo(CardFace.Down));
             Assert.That(new[] { g.Matched, g.Misses, g.Score }, Is.EqualTo(new[] { 0, 0, 0 }));
         }
@@ -29,9 +29,9 @@ namespace MemoryMatch.Tests
             var b = new DeckShuffler(42);
             for (int i = 0; i < 3; i++)
             {
-                var deck = a.Next();
+                var deck = a.Next(BoardSpec.Easy);
                 Assert.That(deck, Is.Not.Empty);
-                Assert.That(b.Next(), Is.EqualTo(deck));
+                Assert.That(b.Next(BoardSpec.Easy), Is.EqualTo(deck));
             }
         }
 
@@ -39,9 +39,9 @@ namespace MemoryMatch.Tests
         public void UT07_NextDealDiffersAndOtherSeedDiffers()
         {
             var a = new DeckShuffler(42);
-            var first = a.Next();
-            Assert.That(a.Next(), Is.Not.EqualTo(first));
-            Assert.That(new DeckShuffler(43).Next(), Is.Not.EqualTo(first));
+            var first = a.Next(BoardSpec.Easy);
+            Assert.That(a.Next(BoardSpec.Easy), Is.Not.EqualTo(first));
+            Assert.That(new DeckShuffler(43).Next(BoardSpec.Easy), Is.Not.EqualTo(first));
         }
     }
 }

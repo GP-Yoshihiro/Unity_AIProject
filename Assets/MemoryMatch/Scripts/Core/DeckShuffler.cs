@@ -9,10 +9,9 @@ namespace MemoryMatch.Core
 
         public DeckShuffler(int seed) => _random = new Random(seed);
 
-        public int[] Next()
+        public int[] Next(BoardSpec spec)
         {
-            var deck = new int[MemoryLogic.CardCount];
-            for (int i = 0; i < deck.Length; i++) deck[i] = i / 2;
+            var deck = spec.CreateCards();
             for (int i = deck.Length - 1; i > 0; i--)
             {
                 int j = _random.Next(i + 1);
